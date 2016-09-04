@@ -1,11 +1,12 @@
-port module Uno exposing (..)
+port module Uno exposing (main)
 
 {-| Entry point
 # Definition
-@docs view
+@docs main
 -}
 
 import Html exposing (Html, button, div, text)
+import Html.Attributes exposing (style)
 import Html.App as App
 import Html.Events exposing (onClick)
 
@@ -13,6 +14,8 @@ import Uno.Menu exposing (menu)
 
 type alias Model = Int
 
+{-|-}
+main : Program Never
 main =
   App.beginnerProgram { model=0 , view=view, update=update }
 
@@ -27,10 +30,16 @@ update msg model =
     Decrement ->
       model - 1
 
+appStyle =
+  [ ("display", "flex")
+  , ("justify-content", "center")
+  , ("align-items", "center")
+  , ("width", "100%")
+  , ("height", "100%")
+  ]
+
 {-|-}
+view: Model -> Html Msg
 view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ menu ]
-    , button [ onClick Increment ] [ text "+" ]
-    ]
+  div [ style appStyle ]
+    [ menu ]
