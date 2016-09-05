@@ -9,26 +9,57 @@ import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (style)
 import Html.App as App
 import Html.Events exposing (onClick)
+import Navigation
+import Http
 
+import Uno.Routes as Routes
+import Uno.Routes exposing (Sitemap(..))
 import Uno.Menu exposing (menu)
 
-type alias Model = Int
+type alias Model =
+  { route : Sitemap
+  , ready : Bool
+  , error : Maybe String
+  }
+
+type Msg
+    = RouteTo Sitemap
 
 {-|-}
 main : Program Never
 main =
-  App.beginnerProgram { model=0 , view=view, update=update }
+  Navigation.program (Navigation.makeParser Routes.parsePath)
+  { urlUpdate=urlUpdate
+  , init=init
+  , view=view
+  , update=update
+  , subscriptions = \_ -> Sub.batch []
+  }
 
-type Msg = Increment | Decrement
 
-update : Msg -> Model -> Model
-update msg model =
-  case msg of
-    Increment ->
-      model + 1
+init : Sitemap -> ( Model, Cmd Msg )
+init route =
+    urlUpdate route
+        { route = route
+        , ready = False
+        , error = Nothing
+        }
 
-    Decrement ->
-      model - 1
+urlUpdate : Sitemap -> Model -> ( Model, Cmd Msg )
+urlUpdate route ({ ready } as m) =
+    let
+        model =
+            { m | route = route }
+    in
+        case route of
+            _ ->
+                model ! []
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg ({ route } as model) =
+    case msg of
+        RouteTo route ->
+            model ! [ Routes.navigateTo route ]
 
 appStyle =
   [ ("display", "flex")
